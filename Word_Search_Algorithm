@@ -1,0 +1,366 @@
+def is_outside_list(letter_list, index):
+    """
+    Returns a Bollean (True or False) indicating whether the index is out of
+    bounds with regards to the length of the list
+    
+        Parameters:
+            letter_list : a list of characters
+            index : a number (int)
+        Returns:
+            a Boolean (True or False) indicating whether the index is out of
+            bounds with regards to the length of the list
+            
+        Examples:
+        >>> is_outside_list(['A', 'B', 'C'], 1)
+        False
+        >>> is_outside_list(['A', 'B', 'C'], 3)
+        True
+        >>> is_outside_list(['A', 'B', 'C'], -2)
+        True
+    """
+    letter_list_size = len(letter_list)
+    
+    if index < 0 or index >= letter_list_size:
+        return True
+    else:
+        return False
+    
+def letter_positions(letter_list, character):
+    """
+    Look for all the positive indices where the given character is found
+    
+        Parameters:
+            letter_list : a list of characters
+            character : a letter (string)
+        Returns:
+            A list of indices where the character has been found in the list
+            
+        Examples:
+        >>> letter_positions(['A', 'B', 'C'], 'A')
+        [0]
+        >>> letter_positions(['A', 'B', 'C', 'D'], 'E')
+        []
+        >>> letter_positions(['A', 'B', 'C'], 'C')
+        [2]
+    """
+#Craete a variable (as a list) to store all the position where the character
+#has been found in the list of letter
+    character_position = []
+
+#Use a loop to traverse the list of letter and to look for all the positive
+#indices where the given character is found
+    for s in range (len(letter_list)):
+        if character == letter_list[s]:
+#Take all the position where the character is found and store them in the
+#variable character_position
+            character_position.append(s)
+    return character_position
+
+def valid_word_pos_direction(letter_list, word, index, direction):
+    """
+    Validate if a word is found at a specific location at a specified
+    direction by increasing the indices in a given direction
+    (as long as we are not outside the list) and comparing if each letter
+    in the list is equal to the one in the word
+    
+        Parameters:
+            letter_list : a list of characters
+            word : a word (string)
+            index: a number (int)
+            direction: a number either 1 or -1 (int)
+            
+        Returns:
+            a Boolean (True or False) indicating if the word can be found at
+            the given index and direction
+            
+        Examples:
+        >>> valid_word_pos_direction(['A', 'B', 'C', 'D'], 'AB', 0, 1)
+        True
+        >>> valid_word_pos_direction(['A', 'B', 'C', 'D'], 'DCB', 3, -1)
+        True
+        >>> valid_word_pos_direction(['A', 'B', 'C', 'D'], 'CDB', 3, 1)
+        False
+    """
+#We are looking whether the given index is out of bounds with regards to the
+#length of the list and if yes then we know that the word cannot be found at
+#the given index and direction
+    if is_outside_list(letter_list, index) == True:
+        return False
+    else:
+        if direction == 1:
+#Check if the last letter of the word is in the list of letter and if not then
+#we know that the word cannot be found at the given index and direction
+#(so return False)
+            if len(letter_list) <= index + len(word):
+                return False
+#We are comparing the s-th letter to the corresponding letter in the
+#letter_list and if one of the s letter does not correspond to the letter_list
+#then the word cannot be found at the given index and direction
+#(so return False)
+            for s in range(index, index+len(word)):
+                if word[s-index] != letter_list[s]:
+                    return False
+                
+            return True
+
+#Same method as the direction =  1      
+        elif direction == -1:
+            if index - len(word) < 0:
+                return False
+            for s in range(index, index - len(word), -1):
+                if word[index-s] != letter_list[s]:
+                    return False
+        
+            return True
+
+def direction_word_given_position(letter_list, word, index):
+    """
+    Validate if the first letter of the word is found at the given index in
+    the list of letters and then search in both directions to find the
+    given word
+    
+        Parameters:
+            letter_list : a list of characters
+            word : a word (string)
+            index: a number (int)            
+        Returns:
+            a list of directions in which the word has been found
+            
+        Examples:
+        >>> direction_word_given_position(['A', 'B', 'C', 'D'], 'AB', 0)
+        [1]
+        >>> direction_word_given_position(['A', 'B', 'C', 'D'], 'BC', 1)
+        [1]
+        >>> direction_word_given_position(['A', 'B', 'C', 'D'], 'DBC', 3)
+        []
+    """
+#Create a variable (as a list) to store all the direction in which the word
+#has been found in the list of letter
+    direction_of_word = []
+    
+    if word[0] == letter_list[index]:
+        if valid_word_pos_direction(letter_list, word, index, -1) == True:
+            direction_of_word.append(-1)
+        if valid_word_pos_direction(letter_list, word, index, 1) == True:
+            direction_of_word.append(1)
+        
+    return direction_of_word
+
+def position_direction_word(letter_list, word):
+    """
+    Returns a list of positions and directions of the word in this
+    format [[position1,direction1], [position2, direction2], ..] 
+    
+        Parameters:
+            letter_list : a list of characters
+            word : a word (string)            
+        Returns:
+            a nested list of the position and direction of the word
+            in letter_list
+            
+        Examples:
+        >>> position_direction_word(['A', 'B', 'C', 'D'], 'AB')
+        [[0, 1]]
+        >>> position_direction_word(['A', 'B', 'C', 'D'], 'BDA')
+        []
+        >>> position_direction_word(['A', 'B', 'A', 'D'], 'AB')
+        [[0,1],[2,-1]]
+    """
+#Create a variable (as a list) to store all the pairs of the indices and
+#direction where the word can be found in the list of letter
+    list_of_all_position_direction_of_word = []
+#Use the first letter of the word as character
+    position_of_word = letter_positions(letter_list, word[0])
+#If we have at least one indice where the the first letter of the word has 
+#been found in the list
+    if len(position_of_word) >= 1:
+#Use of a for loop to work with the different possible position in the 
+#position_of_word since there might be more than one position in the 
+#position_of_word
+        for position in position_of_word:
+            direction_of_word = direction_word_given_position(letter_list, \
+            word, position)
+#If we have at least one direction in which the word has been found
+            if len(direction_of_word) >= 1:
+#Use of a for loop to work with the different possible direction in the 
+#direction_of_word
+#since there might be more than one direction in the direction_of_word
+                for direction in direction_of_word:
+#Store all the pair of position and direction in the variable 
+#list_of_all_position_direction_of_word
+                    list_of_all_position_direction_of_word.append \
+                    ([position, direction])
+
+    return list_of_all_position_direction_of_word
+
+def cross_word_position_direction(bool_letter_list, length_word, \
+index, direction):
+    """
+    Simulate a word being found and crossed off from the list. Then it replace
+    the value of the items in bool_letter_list at the indicated index and
+    direction by the value True. Then update bool_letter_list accordingly.    
+        
+        Parameters:
+            bool_letter_list : a list of booleans
+            length_word : a number (int)
+            index : a number (int)
+            direction : a number, either 1 or -1 (int)
+        Returns:
+            none
+            
+        Examples:
+        >>> cross_word_position_direction([False, False, False, True, True, 
+        True], 3, 0, 1)
+        [True, True, True, True, True, True]
+        >>> cross_word_position_direction([False, False, False, False, False], 
+        3, 2, 1)
+        [False, False, True, True, True]
+        >>> cross_word_position_direction([True, False, False, False, True], 
+        2, 1, 1)
+        [True, True, True, False, True]
+    """
+#Use a for loop to modify the content of the bool_letter_list by adding a \
+#True in the range
+    if direction == 1: 
+        for s in range(index, index + length_word):
+            bool_letter_list[s] = True
+    elif direction == -1:
+        for s in range(index, index - length_word, -1):
+            bool_letter_list[s] = True
+
+def cross_word_all_position_direction(bool_letter_list, length_word, \
+list_position_direction):
+    """
+    For each pair of position and direction, the function will call cross word
+    position direction to update bool letter list
+
+        
+        Parameters:
+            bool_letter_list : a list of booleans
+            length_word : a number (int)
+            list_position_direction : a nested list of position and direction
+            of a word in the list
+        Returns:
+            none
+            
+        Examples:
+        >>> cross_word_all_position_direction([False, False, False, True,
+        True, True], 3, [0, 1])
+        [True, True, True, True, True, True]
+        >>> cross_word_all_position_direction([False, False, False, False,
+        False], 3, [2,1])
+        [False, False, True, True, True]
+        >>> cross_word_all_position_direction([True, False, False, False,
+        True], 2, [1, 1])
+        [True, True, True, False, True]
+    """
+#Since we do not know how many pairs of position (indices) and direction we
+#have in the list_position_direction we are going to use for loop and we are
+#going to work with each pair individually and for each pair the first element
+#is the position and the second element is the direction
+    for pair in list_position_direction: 
+        index = pair[0]
+        direction = pair[1]
+        cross_word_position_direction(bool_letter_list, length_word, index, \
+        direction)
+
+def find_magic_word(letter_list, bool_letter_list):
+    """
+    Goes through letter_list from left to right and grouping all the
+    characters where their corresponding value in bool letter_list is False
+    to construct the magic word
+
+        
+        Parameters:
+            letter_list : a list of letter
+            bool_letter_list : a list of booleans
+        Returns:
+            a magic word in the list (string)
+            
+        Examples:
+        >>> find_magic_word( ['A', 'B', 'C', 'D', 'E'],[False, True, False,
+        False, False)
+        ACDE
+        >>> find_magic_word(['A', 'B', 'C', 'D', 'E'],[True, False, False,
+        False, True])
+        BCD
+        >>> find_magic_word(['A', 'B', 'C', 'D', 'E'], [True, True, False, 
+        False, True])
+        CD
+    """
+#If both input lists are not the same size, the function will raise a
+#valueError with the following message
+    if len(letter_list) != len(bool_letter_list):
+        print("Both lists should have the same size")
+    else:
+#Create a variable (as a list) to store the magic word
+        magic_word = []
+
+#Use a for loop to traverse the list of boolean value and look for all the
+#False value
+        for s in range(len(letter_list)):
+            if bool_letter_list[s] == False:
+#Take all the positions in the list where the boolean value is False and use
+#those position to group the corresponding character in the letter_list and
+#then store them in the variable magic_word
+                magic_word.append(letter_list[s])
+#Using of the join() method to convert from list to string
+                magic_word_in_string = "".join(magic_word)
+    return magic_word_in_string
+
+def word_search(letter_list, word_list):
+    """
+    Go through each word in the list of words and calling both
+    position_direction_word and cross_word_all_position_direction to find and
+    then cross out all the words in the list. Then, it will call
+    find_magic_word and return the magic word
+        
+        Parameters:
+            letter_list : a list of letter
+            word_list : a list of words
+        Returns:
+            a magic word in the list (string)
+            
+        Examples:
+        >>> word_search( ['A', 'B', 'C', 'D', 'E', 'F', 'G'], ['AB', 'FG'])
+        CDE
+        >>> word_search(['A', 'B', 'C', 'D', 'E', 'F', 'G'],['ABC'])
+        DEFG
+        >>> word_search(['A', 'B', 'C', 'D', 'E', 'F', 'G'] ,['CD', 'EF'])
+        ABG
+    """
+#Create a boolean variable (as a list) of the same size as the letter_list,
+#with only False values 
+    bool_letter_list = [False] * len(letter_list)
+
+#Use of a for loop to work with the different possible word in the word_list
+#since there might be more than one word in the word_list
+    for word in word_list:
+        list_position_direction = position_direction_word(letter_list, word)
+        cross_word_all_position_direction(bool_letter_list, len(word), \
+        list_position_direction)
+    return find_magic_word(letter_list, bool_letter_list)
+
+def word_search_main(letters, words):
+    """
+    Convert letters into a list of characters and will create the list the
+    word_list using each word listed in words. Then, it will call
+    word_search function and will return the magic word
+        
+        Parameters:
+            letter : a string
+            words : a string containing a list of words separated by '-'
+        Returns:
+            a magic word in the list (string)
+            
+        Examples:
+        >>> word_search_main('MYNAMEISCRISTIANO', 'IS-CRISTIANO')
+        MYNAME
+        >>> word_search_main('RONALDOISTHEBESTPLAYER', 'RONALDO-IS')
+        THEBESTPLAYER
+        >>> word_search_main('ILOVEMADRID', 'I-LOVE')
+        MADRID
+    """
+    letter_list = list(letters.upper())
+    word_list = words.upper().split('-')
+    return word_search(letter_list, word_list)
